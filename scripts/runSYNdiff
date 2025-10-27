@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -e
+
+for f in ../alunodetail/*syn*.txt
+do
+  OUTFILE=../detail/$(basename "$f")
+  echo "running diff  $f x ${OUTFILE}"
+  diff -bBw "$f" "${OUTFILE}" > ../alunodetail/$(basename -s .txt "$f").diff || true
+done
+
+echo "GENERATED DIFFS - SYN"
+wc ../alunodetail/*_syn.diff || true
+
+echo "suggestions:"
+echo "% batcat ../alunodetail/*syn*txt"
+echo "% batcat ../alunodetail/*syn*diff"
+echo "% meld ../alunodetail/ ../detail/"
+
