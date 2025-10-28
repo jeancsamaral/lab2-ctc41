@@ -69,6 +69,7 @@ var_declaration
         $$->attr.name = $2->attr.name;
         $$->type = $1->type;
         $$->arraysize = $4->attr.val;
+        $$->child[0] = $4;
         $$->lineno = lineno;
       }
   ;
@@ -119,9 +120,14 @@ param
 
 compound_stmt
   : LBRACE local_declarations statement_list RBRACE
-      { $$ = newStmtNode(IfK); /* compound stmt node */
-        $$->child[0] = $2;
-        $$->child[1] = $3;
+      { TreeNode * t = $2;
+        if (t != NULL)
+        { while (t->sibling != NULL)
+            t = t->sibling;
+          t->sibling = $3;
+          $$ = $2;
+        }
+        else $$ = $3;
       }
   ;
 
@@ -204,9 +210,13 @@ return_stmt
 expression
   : var ASSIGN expression
       { $$ = newStmtNode(AssignK);
-        $$->child[0] = $1;
-        $$->child[1] = $3;
         $$->attr.name = $1->attr.name;
+        if ($1->kind.exp == ArrIdK) {
+          $$->child[0] = $1->child[0]; /* array index */
+          $$->child[1] = $3;           /* assigned value */
+        } else {
+          $$->child[0] = $3;           /* assigned value */
+        }
         $$->lineno = lineno;
       }
   | simple_expression { $$ = $1; }

@@ -183,10 +183,14 @@ void printTree( TreeNode * tree )
              tree->attr.name);
           break;
         case VarDeclK:
-          pc("Declare int var: %s\n", tree->attr.name);
+          pc("Declare %s var: %s\n", 
+             tree->type == Integer ? "int" : "void",
+             tree->attr.name);
           break;
         case ArrVarDeclK:
-          pc("Declare int array: %s\n", tree->attr.name);
+          pc("Declare %s array: %s\n",
+             tree->type == Integer ? "int" : "void",
+             tree->attr.name);
           break;
         default:
           pce("Unknown DeclNode kind\n");
@@ -196,10 +200,14 @@ void printTree( TreeNode * tree )
     else if (tree->nodekind==ParamK)
     { switch (tree->kind.param) {
         case ArrParamK:
-          pc("Function param (int array): %s\n", tree->attr.name);
+          pc("Function param (%s array): %s\n", 
+             tree->type == Integer ? "int" : "void",
+             tree->attr.name);
           break;
         case NonArrParamK:
-          pc("Function param (int var): %s\n", tree->attr.name);
+          pc("Function param (%s var): %s\n", 
+             tree->type == Integer ? "int" : "void",
+             tree->attr.name);
           break;
         default:
           pce("Unknown ParamNode kind\n");
@@ -215,8 +223,7 @@ void printTree( TreeNode * tree )
           pc("Iteration (loop)\n");
           break;
         case AssignK:
-          if (tree->child[0]->nodekind == ExpK && 
-              tree->child[0]->kind.exp == ArrIdK)
+          if (tree->child[1] != NULL)
             pc("Assign to array: %s\n",tree->attr.name);
           else
             pc("Assign to var: %s\n",tree->attr.name);
