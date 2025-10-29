@@ -1,0 +1,9 @@
+/home/CTC41/Lab2/build/CMakeFiles/mycmcomp.dir
+/home/CTC41/Lab2/build/CMakeFiles/runmycmcomp.dir
+/home/CTC41/Lab2/build/CMakeFiles/rundiff.dir
+/home/CTC41/Lab2/build/CMakeFiles/ddiff.dir
+/home/CTC41/Lab2/build/CMakeFiles/lexdiff.dir
+/home/CTC41/Lab2/build/CMakeFiles/syndiff.dir
+/home/CTC41/Lab2/build/CMakeFiles/tiny.dir
+/home/CTC41/Lab2/build/CMakeFiles/edit_cache.dir
+/home/CTC41/Lab2/build/CMakeFiles/rebuild_cache.dir

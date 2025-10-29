@@ -11,18 +11,25 @@
 */ 
 
 %{
+typedef struct treeNode TreeNode;
+typedef TreeNode * YYSTYPE;
+#define YYSTYPE_IS_DECLARED 1
+#define YYSTYPE_IS_TRIVIAL 1
+extern YYSTYPE yylval;
+
 #include "globals.h"
 #include "util.h"
 #include "scan.h"
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
+char previousTokenString[MAXTOKENLEN+1];
 %}
 digit       [0-9]
 number      {digit}+
 letter      [a-zA-Z]
 identifier  {letter}+
 newline     \n
-whitespace  [ \t]+
+whitespace  [ \t\r]+
 comment     \/\*([^*]|\*+[^*/])*\*+\/
 %%
 "if"            {return IF;}
@@ -46,7 +53,7 @@ comment     \/\*([^*]|\*+[^*/])*\*+\/
 ","             {return COMMA;}
 {number}        {return NUM;}
 {identifier}    {return ID;}
-{newline}       {lineno++;}
+{newline}       {lineno++; printLine(redundant_source);}
 {whitespace}    {/* skip whitespace */}
 "("             {return LPAREN;}
 ")"             {return RPAREN;}
@@ -54,23 +61,34 @@ comment     \/\*([^*]|\*+[^*/])*\*+\/
 "}"             {return RBRACE;}
 "["             {return LBRACKET;}
 "]"             {return RBRACKET;}
-{comment}       {/* skip comment */}
+{comment}       {
+                  int i = 0;
+                  while(yytext[i] != '\0') {
+                      if(yytext[i] == '\n') {
+                        lineno++;
+                        printLine(redundant_source);
+                      }
+                      i++;
+                  }
+                }
 .               {return ERROR;}
 %%
 TokenType getToken(void)
-{ static int firstTime = TRUE;
+{ 
+  static int firstTime = TRUE;
   TokenType currentToken;
+  strncpy(tokenString, previousTokenString, MAXTOKENLEN);
   if (firstTime)
-  { firstTime = FALSE;
-    lineno++;
+  { 
+    firstTime = FALSE;
     yyin = source;
     yyout = listing;
   }
   currentToken = yylex();
-  strncpy(tokenString,yytext,MAXTOKENLEN);
+  strncpy(previousTokenString, yytext, MAXTOKENLEN);
   if (TraceScan) {
     pc("\t%d: ",lineno);
-    printToken(currentToken,tokenString);
+    printToken(currentToken,previousTokenString);
   }
   return currentToken;
 }

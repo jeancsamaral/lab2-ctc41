@@ -26,23 +26,12 @@
 /* MAXRESERVED = the number of reserved words */
 #define MAXRESERVED 6
 
-typedef enum 
-    /* book-keeping tokens */
-   {ENDFILE,ERROR,
-    /* reserved words */
-    IF,ELSE,INT,RETURN,VOID,WHILE,
-    /* multicharacter tokens */
-    ID,NUM,
-    /* special symbols */
-    PLUS,MINUS,TIMES,OVER,
-    LT,LE,GT,GE,EQ,NEQ,
-    ASSIGN,SEMI,COMMA,
-    LPAREN,RPAREN,LBRACKET,RBRACKET,LBRACE,RBRACE
-   } TokenType;
+typedef int TokenType;
 
 extern FILE* source; /* source code text file */
 extern FILE* listing; /* listing output text file */
 extern FILE* code; /* code text file for TM simulator */
+extern FILE* redundant_source;
 
 extern int lineno; /* source line number for listing */
 
@@ -50,9 +39,11 @@ extern int lineno; /* source line number for listing */
 /***********   Syntax tree for parsing ************/
 /**************************************************/
 
-typedef enum {StmtK,ExpK} NodeKind;
-typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK} StmtKind;
-typedef enum {OpK,ConstK,IdK} ExpKind;
+typedef enum {StmtK,ExpK,DeclK,ParamK} NodeKind;
+typedef enum {IfK,WhileK,ReturnK,CompoundK} StmtKind;
+typedef enum {OpK,ConstK,IdK,ArrIdK,AssignK,CallK,TypeK} ExpKind;
+typedef enum {FunDeclK,VarDeclK,ArrVarDeclK} DeclKind;
+typedef enum {ArrParamK,NonArrParamK} ParamKind;
 
 /* ExpType is used for type checking */
 typedef enum {Void,Integer,Boolean} ExpType;
@@ -64,11 +55,12 @@ typedef struct treeNode
      struct treeNode * sibling;
      int lineno;
      NodeKind nodekind;
-     union { StmtKind stmt; ExpKind exp;} kind;
+     union { StmtKind stmt; ExpKind exp; DeclKind decl; ParamKind param;} kind;
      union { TokenType op;
              int val;
              char * name; } attr;
      ExpType type; /* for type checking of exps */
+     int arraysize;
    } TreeNode;
 
 /**************************************************/

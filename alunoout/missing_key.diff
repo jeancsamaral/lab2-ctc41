@@ -1,0 +1,8 @@
+0a1,2
+> 
+> TINY COMPILATION: ../example/missing_key.cm
+86a89,92
+> Syntax error at line 17: syntax error
+> Current token: EOF
+> 
+> Syntax tree:

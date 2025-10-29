@@ -59,7 +59,7 @@ else()
     target_link_libraries(mycmcomp ${FLEX_LIBRARIES})
 endif()
 
- #${FLEX_LIBRARIES})
+ #${FLEX_LIBRARIES}
  # compilation problem of undefined yylex - noyywrap - it only works with one src file
  # https://stackoverflow.com/questions/1480138/undefined-reference-to-yylex
 
@@ -94,6 +94,14 @@ add_custom_target(lexdiff
   VERBATIM
   USES_TERMINAL
 )
+
+add_custom_target(syndiff 
+  COMMENT "running syn diff" 
+  COMMAND ../scripts/runSYNdiff 
+  DEPENDS runmycmcomp 
+  VERBATIM 
+  USES_TERMINAL 
+) 
 
 ########## compiling the tiny compiler  #############3
 

@@ -1,0 +1,10 @@
+# Hashes of file build rules.
+959f16d36b64bc63ef5129ea9f804ec7 CMakeFiles/ddiff
+79da93b70f24fb9e642f46e08879db47 CMakeFiles/lexdiff
+fc980538997a00c07e0f57fe4decef8d CMakeFiles/rundiff
+e1b52675408d4376206cca8c5d0d472d CMakeFiles/runmycmcomp
+f15bd4da13b85b741f722bfdbb955cc6 CMakeFiles/syndiff
+0dfce61c8755edb4504da2699e1fa10a lexer.c
+6f5e70378fa416f14e1c6cc673da6d52 parser.c
+dfb65a1d0878fbc091fd375a2c426ab2 tinylexer.c
+72410c34e4c8cbed6c0b872207f4638a tinyparser.c
