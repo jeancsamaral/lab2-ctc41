@@ -95,6 +95,14 @@ add_custom_target(lexdiff
   USES_TERMINAL
 )
 
+add_custom_target(syndiff 
+  COMMENT "running syn diff"
+  COMMAND ../scripts/runSYNdiff
+  DEPENDS runmycmcomp
+  VERBATIM
+  USES_TERMINAL
+)
+
 ########## compiling the tiny compiler  #############3
 
 if (DOPARSE)
