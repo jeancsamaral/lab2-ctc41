@@ -195,7 +195,6 @@ void printTree(TreeNode *tree)
           pc("Return\n");
           break;
         case CompoundK:
-          /* Do not print Compound nodes; print their children at same level */
           for (i = 0; i < MAXCHILDREN; i++)
             printTree(tree->child[i]);
           childrenHandled = 1;
@@ -219,7 +218,6 @@ void printTree(TreeNode *tree)
           pc("Id: %s\n", tree->attr.name);
           break;
         case ArrIdK:
-          /* print array access as Id with index as child */
           pc("Id: %s\n", tree->attr.name);
           INDENT;
           printTree(tree->child[0]);
@@ -229,14 +227,12 @@ void printTree(TreeNode *tree)
         case AssignK:
           if (tree->child[0] && tree->child[0]->nodekind == ExpK && tree->child[0]->kind.exp == IdK) {
             pc("Assign to var: %s\n", tree->child[0]->attr.name);
-            /* Only print RHS */
             INDENT;
             printTree(tree->child[1]);
             UNINDENT;
             childrenHandled = 1;
           } else if (tree->child[0] && tree->child[0]->nodekind == ExpK && tree->child[0]->kind.exp == ArrIdK) {
             pc("Assign to array: %s\n", tree->child[0]->attr.name);
-            /* print index then RHS */
             INDENT;
             printTree(tree->child[0]->child[0]);
             printTree(tree->child[1]);
