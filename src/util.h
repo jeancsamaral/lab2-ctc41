@@ -8,6 +8,9 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#include "globals.h"
+
+#define YYSTYPE TreeNode *
 #include "../build/parser.h"
 
 /* Procedure printToken prints a token 

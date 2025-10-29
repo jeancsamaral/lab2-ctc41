@@ -77,13 +77,14 @@ TokenType getToken(void)
 { 
   static int firstTime = TRUE;
   TokenType currentToken;
-  strncpy(tokenString, previousTokenString, MAXTOKENLEN);
   if (firstTime)
   { 
     firstTime = FALSE;
     yyin = source;
     yyout = listing;
+    printLine(redundant_source);
   }
+  strncpy(tokenString, previousTokenString, MAXTOKENLEN);
   currentToken = yylex();
   strncpy(previousTokenString, yytext, MAXTOKENLEN);
   if (TraceScan) {

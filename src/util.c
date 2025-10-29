@@ -178,24 +178,27 @@ static void printSpaces(void)
 void printTree(TreeNode *tree)
 {
   int i;
-  INDENT;
   while (tree != NULL) 
   {
+    int childrenHandled = 0;
     printSpaces();
     if (tree->nodekind == StmtK)
     {
       switch (tree->kind.stmt) {
         case IfK:
-          pc("If\n");
+          pc("Conditional selection\n");
           break;
         case WhileK:
-          pc("While\n");
+          pc("Iteration (loop)\n");
           break;
         case ReturnK:
           pc("Return\n");
           break;
         case CompoundK:
-          pc("Compound Stmt\n");
+          /* Do not print Compound nodes; print their children at same level */
+          for (i = 0; i < MAXCHILDREN; i++)
+            printTree(tree->child[i]);
+          childrenHandled = 1;
           break;
         default:
           pce("Unknown StmtNode kind\n");
@@ -216,13 +219,39 @@ void printTree(TreeNode *tree)
           pc("Id: %s\n", tree->attr.name);
           break;
         case ArrIdK:
-          pc("ArrId: %s\n", tree->attr.name);
+          /* print array access as Id with index as child */
+          pc("Id: %s\n", tree->attr.name);
+          INDENT;
+          printTree(tree->child[0]);
+          UNINDENT;
+          childrenHandled = 1;
           break;
         case AssignK:
-          pc("Assign\n");
+          if (tree->child[0] && tree->child[0]->nodekind == ExpK && tree->child[0]->kind.exp == IdK) {
+            pc("Assign to var: %s\n", tree->child[0]->attr.name);
+            /* Only print RHS */
+            INDENT;
+            printTree(tree->child[1]);
+            UNINDENT;
+            childrenHandled = 1;
+          } else if (tree->child[0] && tree->child[0]->nodekind == ExpK && tree->child[0]->kind.exp == ArrIdK) {
+            pc("Assign to array: %s\n", tree->child[0]->attr.name);
+            /* print index then RHS */
+            INDENT;
+            printTree(tree->child[0]->child[0]);
+            printTree(tree->child[1]);
+            UNINDENT;
+            childrenHandled = 1;
+          } else {
+            pc("Assign\n");
+            INDENT;
+            printTree(tree->child[1]);
+            UNINDENT;
+            childrenHandled = 1;
+          }
           break;
         case CallK:
-          pc("Call: %s\n", tree->attr.name);
+          pc("Function call: %s\n", tree->attr.name);
           break;
         case TypeK:
           pc("Type: %s\n", (tree->type == Integer) ? "int" : "void");
@@ -236,13 +265,18 @@ void printTree(TreeNode *tree)
     {
       switch (tree->kind.decl) {
         case FunDeclK:
-          pc("FunDecl: %s (returns %s)\n", tree->attr.name, (tree->type == Integer) ? "int" : "void");
+          pc("Declare function (return type \"%s\"): %s\n", (tree->type == Integer) ? "int" : "void", tree->attr.name);
           break;
         case VarDeclK:
-          pc("VarDecl: %s (type %s)\n", tree->attr.name, (tree->type == Integer) ? "int" : "void");
+          pc("Declare %s var: %s\n", (tree->type == Integer) ? "int" : "void", tree->attr.name);
           break;
         case ArrVarDeclK:
-          pc("ArrVarDecl: %s (type %s) [size %d]\n", tree->attr.name, (tree->type == Integer) ? "int" : "void", tree->arraysize);
+          pc("Declare %s array: %s\n", (tree->type == Integer) ? "int" : "void", tree->attr.name);
+          INDENT; 
+          printSpaces(); 
+          pc("Const: %d\n", tree->arraysize); 
+          UNINDENT;
+          childrenHandled = 1;
           break;
         default:
           pce("Unknown DeclNode kind\n");
@@ -253,10 +287,10 @@ void printTree(TreeNode *tree)
     {
       switch (tree->kind.param) {
         case NonArrParamK:
-          pc("Param: %s (type %s)\n", tree->attr.name, (tree->type == Integer) ? "int" : "void");
+          pc("Function param (%s var): %s\n", (tree->type == Integer) ? "int" : "void", tree->attr.name);
           break;
         case ArrParamK:
-          pc("Param: %s[] (type %s)\n", tree->attr.name, (tree->type == Integer) ? "int" : "void");
+          pc("Function param (%s array): %s\n", (tree->type == Integer) ? "int" : "void", tree->attr.name);
           break;
         default:
           pce("Unknown ParamNode kind\n");
@@ -265,9 +299,12 @@ void printTree(TreeNode *tree)
     }
     else pce("Unknown node kind\n");
 
-    for (i = 0; i < MAXCHILDREN; i++)
-      printTree(tree->child[i]);
+    if (!childrenHandled) {
+      INDENT;
+      for (i = 0; i < MAXCHILDREN; i++)
+        printTree(tree->child[i]);
+      UNINDENT;
+    }
     tree = tree->sibling;
   }
-  UNINDENT;
 }
