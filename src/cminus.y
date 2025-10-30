@@ -126,13 +126,33 @@ param : type_specifier ID
           }
       ;
 
-comp_decl : LBRACE local_decl statement_list RBRACE
+comp_decl : LBRACE block_item_list RBRACE
             { 
               $$ = newStmtNode(CompoundK);
               $$->child[0] = $2;
-              $$->child[1] = $3;
+              $$->child[1] = NULL;
             }
           ;
+
+block_item_list : block_item_list block_item
+                    {
+                        YYSTYPE t = $1;
+                        if (t != NULL) {
+                            while (t->sibling != NULL)
+                                t = t->sibling;
+                            t->sibling = $2;
+                            $$ = $1;
+                        }
+                        else { $$ = $2; }
+                    }
+                | { $$ = NULL; }
+                ;
+
+block_item : var_declaration
+                { $$ = $1; }
+           | statement
+                { $$ = $1; }
+           ;
 
 local_decl  : local_decl var_declaration
                 {
@@ -344,6 +364,20 @@ factor  : LPAREN expression RPAREN
             { $$ = $1; }
         | NUM
             { $$ = $1; }
+        | MINUS factor
+            {
+              $$ = newExpNode(OpK);
+              $$->attr.op = MINUS;
+              $$->child[0] = $2;
+              $$->lineno = lineno;
+            }
+        | PLUS factor
+            {
+              $$ = newExpNode(OpK);
+              $$->attr.op = PLUS;
+              $$->child[0] = $2;
+              $$->lineno = lineno;
+            }
         ;
 
 activation  : ID LPAREN args RPAREN
