@@ -379,10 +379,14 @@ arg_list : arg_list COMMA expression
 %%
 
 int yyerror(char * message)
-{ pce("Syntax error at line %d: %s\n",lineno,message);
-  pce("Current token: ");
-  printToken(yychar,tokenString);
-  Error = TRUE;
+{ 
+  /* Only report error if not at EOF after successful parse */
+  if (yychar != ENDFILE || savedTree == NULL) {
+    pce("Syntax error at line %d: %s\n",lineno,message);
+    pce("Current token: ");
+    printToken(yychar,tokenString);
+    Error = TRUE;
+  }
   return 0;
 }
 

@@ -51,8 +51,16 @@ comment     \/\*([^*]|\*+[^*/])*\*+\/
 "="             {return ASSIGN;}
 ";"             {return SEMI;}
 ","             {return COMMA;}
-{number}        {return NUM;}
-{identifier}    {return ID;}
+{number}        {
+                  yylval = newExpNode(ConstK);
+                  yylval->attr.val = atoi(yytext);
+                  return NUM;
+                }
+{identifier}    {
+                  yylval = newExpNode(IdK);
+                  yylval->attr.name = copyString(yytext);
+                  return ID;
+                }
 {newline}       {lineno++; printLine(redundant_source);}
 {whitespace}    {/* skip whitespace */}
 "("             {return LPAREN;}
@@ -71,11 +79,13 @@ comment     \/\*([^*]|\*+[^*/])*\*+\/
                       i++;
                   }
                 }
+<<EOF>>         {return ENDFILE;}
 .               {return ERROR;}
 %%
 TokenType getToken(void)
 { 
   static int firstTime = TRUE;
+  static int eofReturned = FALSE;
   TokenType currentToken;
   if (firstTime)
   { 
@@ -84,6 +94,8 @@ TokenType getToken(void)
     yyout = listing;
     printLine(redundant_source);
   }
+  if (eofReturned) return ENDFILE;
+  
   strncpy(tokenString, previousTokenString, MAXTOKENLEN);
   currentToken = yylex();
   strncpy(previousTokenString, yytext, MAXTOKENLEN);
@@ -91,5 +103,6 @@ TokenType getToken(void)
     pc("\t%d: ",lineno);
     printToken(currentToken,previousTokenString);
   }
+  if (currentToken == ENDFILE) eofReturned = TRUE;
   return currentToken;
 }
