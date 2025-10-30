@@ -178,6 +178,7 @@ static void printSpaces(void)
 void printTree(TreeNode *tree)
 {
   int i;
+  INDENT;
   while (tree != NULL) 
   {
     int childrenHandled = 0;
@@ -195,8 +196,11 @@ void printTree(TreeNode *tree)
           pc("Return\n");
           break;
         case CompoundK:
+          /* skip compound nodes - don't print them */
+          UNINDENT;
           for (i = 0; i < MAXCHILDREN; i++)
             printTree(tree->child[i]);
+          INDENT;
           childrenHandled = 1;
           break;
         default:
@@ -296,11 +300,10 @@ void printTree(TreeNode *tree)
     else pce("Unknown node kind\n");
 
     if (!childrenHandled) {
-      INDENT;
       for (i = 0; i < MAXCHILDREN; i++)
         printTree(tree->child[i]);
-      UNINDENT;
     }
     tree = tree->sibling;
   }
+  UNINDENT;
 }
